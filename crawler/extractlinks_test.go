@@ -1,0 +1,41 @@
+package crawler
+
+import (
+	"log"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+func TestExtractLinks(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected Link
+		err      error
+	}{
+		{
+			input: "fixtures/testlinks-1.html",
+			expected: Link{
+				Host:     "https://www.example.com",
+				Path:     "/path/to/",
+				Document: "page.html",
+			},
+			err: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		inputPath := filepath.Join(tc.input)
+
+		r, err := os.Open(inputPath)
+		if err != nil {
+			log.Fatalf("Error reading file: %v", err)
+		}
+
+		links, err := ExtractLinksFromHtml(r)
+		for _, l := range links {
+			t.Logf("link: %+v", l)
+		}
+
+	}
+}
