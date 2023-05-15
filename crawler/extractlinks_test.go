@@ -14,7 +14,7 @@ func TestExtractLinks(t *testing.T) {
 		err      error
 	}{
 		{
-			input: "fixtures/testlinks-1.html",
+			input: "fixtures/links/testlinks-1.html",
 			expected: Link{
 				Host:     "https://www.example.com",
 				Path:     "/path/to/",

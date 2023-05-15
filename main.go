@@ -2,43 +2,69 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	"log"
+	"net/url"
+	"runtime"
 	"time"
 	"web-crawler/crawler"
 	"web-crawler/lib"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-func recursiveCrawl(startUrl string, visitedUrls lib.SafeVisited) {
-	crawler.Crawl(startUrl, startUrl, visitedUrls)
+func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, extractor crawler.Browser) {
+	c := crawler.NewCrawler(extractor)
+	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
-func poolCrawl(startUrl string, visitedUrls lib.SafeVisited) {
-	crawler.PooledCrawler(startUrl, startUrl, visitedUrls)
+func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, workers int) {
+	c := crawler.NewPooledCrawler(browser, workers)
+	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
-func fastCrawl(startUrl string, visitedUrls lib.SafeVisited) {
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	crawler.FastCrawl(startUrl, startUrl, visitedUrls, &wg)
-	wg.Wait()
+func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser) {
+	crawler := crawler.NewFastCrawler(browser)
+	crawler.Crawl(parentURL, startURL, visitedUrls)
 }
 
-func main() {
-	fmt.Println("Wola!")
+var (
+	engine  string
+	workers int
+)
 
-	//visitedUrls := []string{}
+func runCrawler(cmd *cobra.Command, args []string) {
+	inputURL := args[0]
 
-	//startUrl := "https://parserdigital.com"
-	//crawler.Crawl(startUrl, startUrl, &visitedUrls)
+	// Validate URL
+	parsedURL, err := url.ParseRequestURI(inputURL)
+	if err != nil {
+		log.Fatalf("Invalid URL: %s", inputURL)
+	}
+
+	// Check if URL scheme is specified
+	if parsedURL.Scheme == "" {
+		log.Fatalf("Invalid URL: Scheme not specified")
+	}
+
+	parentURL := fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
+	fmt.Printf("Parent URL: %s\n", parentURL)
 
 	epoch := time.Now()
-
 	visitedUrls := lib.NewSafeMap()
-	startUrl := "https://parserdigital.com"
 
-	//recursiveCrawl(startUrl, visitedUrls)
-	poolCrawl(startUrl, visitedUrls)
-	//fastCrawl(startUrl, visitedUrls)
+	browser := crawler.NewWebBrowser()
+
+	switch engine {
+	case "recursive":
+		recursiveCrawl(parentURL, inputURL, visitedUrls, browser)
+	case "fast":
+		fastCrawl(parentURL, inputURL, visitedUrls, browser)
+	case "pooled":
+		poolCrawl(parentURL, inputURL, visitedUrls, browser, workers)
+	default:
+		log.Fatal("Invalid engine specified")
+	}
 
 	fmt.Println(" ====== Visited urls: ======")
 	for i, v := range visitedUrls.List() {
@@ -46,5 +72,24 @@ func main() {
 	}
 
 	fmt.Printf("Time taken: %s\n", time.Since(epoch))
+}
+
+func main() {
+	rootCmd := &cobra.Command{
+		Use:   "crawler [url]",
+		Short: "A CLI for running crawlers",
+		Args:  cobra.ExactArgs(1),
+		Run:   runCrawler,
+	}
+
+	rootCmd.Flags().StringVarP(&engine, "engine", "e", "recursive", "Crawling engine (recursive, fast, pooled)")
+	viper.BindPFlags(rootCmd.Flags())
+
+	rootCmd.Flags().IntVarP(&workers, "workers", "w", runtime.GOMAXPROCS(0), "Number of workers (only applicable for pooled engine)")
+	viper.BindPFlag("workers", rootCmd.Flags().Lookup("workers"))
+
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatal(err)
+	}
 
 }

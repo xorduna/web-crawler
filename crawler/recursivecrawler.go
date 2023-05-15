@@ -24,9 +24,31 @@ func extractLinksFromUrl(url string) ([]Link, error) {
 	return ExtractLinksFromHtml(resp.Body)
 }
 
-func Crawl(parentUrl string, url string, visited lib.SafeVisited) {
+type RecursiveCrawler struct {
+	browser Browser
+}
 
-	links, err := extractLinksFromUrl(url)
+func NewCrawler(browser Browser) *RecursiveCrawler {
+	return &RecursiveCrawler{
+		browser: browser,
+	}
+}
+
+func (c *RecursiveCrawler) visit(url string) ([]Link, error) {
+	reader, err := c.browser.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	return ExtractLinksFromHtml(reader)
+}
+
+func (c *RecursiveCrawler) Crawl(parentUrl string, url string, visited lib.SafeVisited) {
+	parentLink, err := ParseLink(url)
+	if err != nil {
+		return
+	}
+
+	links, err := c.visit(url)
 	if err == nil {
 		for _, l := range links {
 			//check if we have visited this url before
@@ -37,7 +59,14 @@ func Crawl(parentUrl string, url string, visited lib.SafeVisited) {
 			if !visited.IsVisited(l.FullLink()) {
 				fmt.Println("Visiting: ", l.FullLink())
 				visited.AddVisited(l.FullLink())
-				Crawl(parentUrl, l.FullLink(), visited)
+
+				if l.Host == "" {
+					l.Host = parentLink.Host
+				}
+				if l.Path == "" {
+					l.Path = parentLink.Path
+				}
+				c.Crawl(parentUrl, l.FullLink(), visited)
 
 			} else {
 				fmt.Printf("Already visited: %s\n", l.FullLink())
