@@ -17,8 +17,8 @@ func NewDiskBrowser(baseSite string) *DiskBrowser {
 }
 
 func (f *DiskBrowser) Get(url string) (io.Reader, error) {
-	//remove host from url
-	path := strings.Replace(url, f.baseSite, "", -1)
+	// remove host from url
+	path := strings.ReplaceAll(url, f.baseSite, "")
 	if path == "" || path == "/" {
 		path = "/index.html"
 	}
@@ -31,5 +31,6 @@ func (f *DiskBrowser) Get(url string) (io.Reader, error) {
 	}
 
 	reader := io.Reader(file)
+
 	return reader, nil
 }

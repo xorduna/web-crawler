@@ -15,7 +15,7 @@ type SafeMap struct {
 	lock        sync.RWMutex
 }
 
-func NewSafeMap() SafeVisited {
+func NewSafeMap() *SafeMap {
 	return &SafeMap{
 		visitedUrls: make(map[string]bool),
 	}
@@ -31,6 +31,7 @@ func (s *SafeMap) IsVisited(url string) bool {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 	_, ok := s.visitedUrls[url]
+
 	return ok
 }
 
@@ -38,9 +39,10 @@ func (s *SafeMap) List() []string {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	var urls []string
-	for k, _ := range s.visitedUrls {
+	urls := make([]string, 0)
+	for k := range s.visitedUrls {
 		urls = append(urls, k)
 	}
+
 	return urls
 }

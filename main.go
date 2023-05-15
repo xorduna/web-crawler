@@ -13,24 +13,25 @@ import (
 	"github.com/spf13/viper"
 )
 
-func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, extractor crawler.Browser) {
-	c := crawler.NewCrawler(extractor)
+func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
+	c := crawler.NewCrawler(browser, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
-func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, workers int) {
-	c := crawler.NewPooledCrawler(browser, workers)
+func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool, workers int) {
+	c := crawler.NewPooledCrawler(browser, workers, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
-func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser) {
-	crawler := crawler.NewFastCrawler(browser)
+func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
+	crawler := crawler.NewFastCrawler(browser, verbosity)
 	crawler.Crawl(parentURL, startURL, visitedUrls)
 }
 
 var (
-	engine  string
-	workers int
+	engine    string
+	workers   int
+	verbosity bool
 )
 
 func runCrawler(cmd *cobra.Command, args []string) {
@@ -57,16 +58,17 @@ func runCrawler(cmd *cobra.Command, args []string) {
 
 	switch engine {
 	case "recursive":
-		recursiveCrawl(parentURL, inputURL, visitedUrls, browser)
+		recursiveCrawl(parentURL, inputURL, visitedUrls, browser, verbosity)
 	case "fast":
-		fastCrawl(parentURL, inputURL, visitedUrls, browser)
+		fastCrawl(parentURL, inputURL, visitedUrls, browser, verbosity)
 	case "pooled":
-		poolCrawl(parentURL, inputURL, visitedUrls, browser, workers)
+		poolCrawl(parentURL, inputURL, visitedUrls, browser, verbosity, workers)
 	default:
 		log.Fatal("Invalid engine specified")
 	}
 
 	fmt.Println(" ====== Visited urls: ======")
+
 	for i, v := range visitedUrls.List() {
 		fmt.Printf("%d: %s\n", i, v)
 	}
@@ -82,14 +84,19 @@ func main() {
 		Run:   runCrawler,
 	}
 
-	rootCmd.Flags().StringVarP(&engine, "engine", "e", "recursive", "Crawling engine (recursive, fast, pooled)")
+	rootCmd.Flags().StringVarP(&engine, "engine", "e", "recursive",
+		"Crawling engine (recursive, fast, pooled)")
 	viper.BindPFlags(rootCmd.Flags())
 
-	rootCmd.Flags().IntVarP(&workers, "workers", "w", runtime.GOMAXPROCS(0), "Number of workers (only applicable for pooled engine)")
+	rootCmd.Flags().IntVarP(&workers, "workers", "w", runtime.GOMAXPROCS(0),
+		"Number of workers (only applicable for pooled engine)")
 	viper.BindPFlag("workers", rootCmd.Flags().Lookup("workers"))
+
+	rootCmd.Flags().BoolVarP(&verbosity, "verbose", "v", false,
+		"Verbose output")
+	viper.BindPFlag("verbose", rootCmd.Flags().Lookup("verbose"))
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
-
 }

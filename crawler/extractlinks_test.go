@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,7 +33,9 @@ func TestExtractLinks(t *testing.T) {
 			log.Fatalf("Error reading file: %v", err)
 		}
 
-		links, err := ExtractLinksFromHtml(r)
+		links, err := ExtractLinksFromHTML(r)
+		assert.NotNil(t, links)
+		assert.Nil(t, err)
 		for _, l := range links {
 			t.Logf("link: %+v", l)
 		}

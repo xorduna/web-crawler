@@ -27,7 +27,7 @@ func (l Link) FullLink() string {
 // urlRegex := regexp.MustCompile(`(?P<host>https?://[^"/]+)?(?P<path>(?:/|^)(.*?)(?P<document>[^/"\s]+))$`)
 
 func ParseLink(str string) (Link, error) {
-	//check if string starts with "#" or "javascript" to discard javascript commands and anchors
+	// check if string starts with "#" or "javascript" to discard javascript commands and anchors
 	if strings.HasPrefix(str, "#") || strings.HasPrefix(str, "javascript") || strings.HasPrefix(str, "mailto") {
 		return Link{}, fmt.Errorf("invalid URL: %s", str)
 	}
@@ -43,7 +43,7 @@ func ParseLink(str string) (Link, error) {
 		// if host is found, remove it from str
 		path = strings.Replace(str, hostMatch[0], "", 1)
 
-		//get host as a variable
+		// get host as a variable
 		host = hostMatch[0]
 	}
 
