@@ -6,28 +6,28 @@ import (
 	"net/url"
 	"runtime"
 	"time"
-	"web-crawler/crawler"
-	"web-crawler/lib"
+	crawler2 "web-crawler/pkg/crawler"
+	"web-crawler/pkg/lib"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 //nolint:lll
-func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
-	c := crawler.NewCrawler(browser, verbosity)
+func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler2.Browser, verbosity bool) {
+	c := crawler2.NewCrawler(browser, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
 //nolint:lll
-func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool, workers int) {
-	c := crawler.NewPooledCrawler(browser, workers, verbosity)
+func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler2.Browser, verbosity bool, workers int) {
+	c := crawler2.NewPooledCrawler(browser, workers, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
 //nolint:lll
-func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
-	crawler := crawler.NewFastCrawler(browser, verbosity)
+func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler2.Browser, verbosity bool) {
+	crawler := crawler2.NewFastCrawler(browser, verbosity)
 	crawler.Crawl(parentURL, startURL, visitedUrls)
 }
 
@@ -57,7 +57,7 @@ func runCrawler(cmd *cobra.Command, args []string) {
 	epoch := time.Now()
 	visitedUrls := lib.NewSafeMap()
 
-	browser := crawler.NewWebBrowser()
+	browser := crawler2.NewWebBrowser()
 
 	switch engine {
 	case "recursive":

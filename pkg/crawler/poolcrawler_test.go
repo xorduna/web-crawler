@@ -3,7 +3,7 @@ package crawler
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"web-crawler/lib"
+	"web-crawler/pkg/lib"
 )
 
 func TestPooledCrawler_Crawl(t *testing.T) {

@@ -1,15 +1,16 @@
 package crawler
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
-	"web-crawler/lib"
+	"web-crawler/pkg/lib"
 )
 
-func TestCrawl(t *testing.T) {
+func TestFastCrawler_Crawl(t *testing.T) {
 
 	fakeExtractor := NewDiskBrowser("https://fakesite.com")
 
-	c := NewCrawler(fakeExtractor, false)
+	c := NewFastCrawler(fakeExtractor, false)
 
 	visitedUrls := lib.NewSafeMap()
 
@@ -17,5 +18,8 @@ func TestCrawl(t *testing.T) {
 
 	for _, l := range visitedUrls.List() {
 		t.Logf("Visited: %s", l)
+		assert.Contains(t, fakeSiteLinks, l)
 	}
+
+	assert.Len(t, visitedUrls.List(), len(fakeSiteLinks))
 }

@@ -2,33 +2,22 @@ package crawler
 
 import (
 	"fmt"
-	"sync"
-	"web-crawler/lib"
+	"web-crawler/pkg/lib"
 )
 
-type FastCrawler struct {
+type RecursiveCrawler struct {
 	browser   Browser
 	verbosity bool
 }
 
-func NewFastCrawler(browser Browser, verbosity bool) *FastCrawler {
-	return &FastCrawler{
+func NewCrawler(browser Browser, verbosity bool) *RecursiveCrawler {
+	return &RecursiveCrawler{
 		browser:   browser,
 		verbosity: verbosity,
 	}
 }
 
-func (c *FastCrawler) Crawl(parentURL string, url string, visitedUrls lib.SafeVisited) {
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	c.fastCrawl(parentURL, url, visitedUrls, &wg)
-	wg.Wait()
-}
-
-func (c *FastCrawler) fastCrawl(parentURL string, url string, visitedUrls lib.SafeVisited, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func (c *RecursiveCrawler) Crawl(parentURL string, url string, visited lib.SafeVisited) {
 	parentLink, err := ParseLink(url)
 	if err != nil {
 		return
@@ -48,7 +37,7 @@ func (c *FastCrawler) fastCrawl(parentURL string, url string, visitedUrls lib.Sa
 
 	// second loop is to crawl the links
 	for _, l := range links {
-		// check if it is an external link
+		// Skip external links
 		if l.Host != parentURL && l.Host != "" {
 			if c.verbosity {
 				fmt.Printf("Skipping external link: %s\n", l.FullLink())
@@ -58,13 +47,12 @@ func (c *FastCrawler) fastCrawl(parentURL string, url string, visitedUrls lib.Sa
 		}
 
 		// check if we have visited this url before
-		if !visitedUrls.IsVisited(l.FullLink()) {
+		if !visited.IsVisited(l.FullLink()) {
 			if c.verbosity {
 				fmt.Println("Visiting: ", l.FullLink())
 			}
 
-			visitedUrls.AddVisited(l.FullLink())
-			wg.Add(1)
+			visited.AddVisited(l.FullLink())
 
 			// If the link is relative, we need to add the parent's host and path
 			if l.Host == "" {
@@ -75,7 +63,7 @@ func (c *FastCrawler) fastCrawl(parentURL string, url string, visitedUrls lib.Sa
 				l.Path = parentLink.Path
 			}
 
-			go c.fastCrawl(parentURL, l.FullLink(), visitedUrls, wg)
+			c.Crawl(parentURL, l.FullLink(), visited)
 		} else if c.verbosity {
 			fmt.Printf("Already visited: %s\n", l.FullLink())
 		}

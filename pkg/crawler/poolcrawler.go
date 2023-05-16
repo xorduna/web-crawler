@@ -3,7 +3,7 @@ package crawler
 import (
 	"fmt"
 	"sync"
-	"web-crawler/lib"
+	"web-crawler/pkg/lib"
 )
 
 type PooledCrawler struct {
