@@ -45,11 +45,16 @@ Those are the main tasks in which I divided the development process:
 
 ### Possible improvements
 
+Code is never finished. There are always things to improve. Here are some of the things that I would improve if I had more time:
+
 - Remove some repeated code in the crawlers
 - Add more tests for more complex sites
 - handle redirects properly
 - ensure that body is closed when opening the url. Before it was closed on the same function, but since I added the DiskBrowser to mock the webserver I had to close it somewhere else and io.Reader does not provide a Close method.
 - change the verbosity flag and the if verbosity printf to use a logger with a loglevel. I didn't do it because it needed external dependencies. I wanted to add verbosity because in any production software you need to go deeper if needed.
+- improve some naming, specially the ones related with the extraction of links
+- divide crawlers from browsers. I didn't do it because I wanted to keep the code as simple as possible, but it would be a good improvement to separate the crawlers from the browsers.
+- reorganize folders, for example Safevisited initially was intended to be a generic safe map, but then it was much more practical to named it SafeVisited since it just stores visited links.
 
 ### External dependencies explained
 
