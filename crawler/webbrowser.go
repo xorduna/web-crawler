@@ -13,7 +13,7 @@ func NewWebBrowser() *WebBrowser {
 }
 
 func (w *WebBrowser) Get(url string) (io.Reader, error) {
-	//nolint: gosec
+	//nolint: gosec, bodyclose, noctx
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

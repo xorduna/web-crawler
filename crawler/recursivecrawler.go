@@ -30,18 +30,19 @@ func (c *RecursiveCrawler) Crawl(parentURL string, url string, visited lib.SafeV
 
 	// first loop is to print the links
 	fmt.Printf("Visited: %s\n", url)
+
 	for _, l := range links {
 		fmt.Printf(" - %s\n", l.FullLink())
 	}
 
 	// second loop is to crawl the links
 	for _, l := range links {
-
 		// Skip external links
 		if l.Host != parentURL && l.Host != "" {
 			if c.verbosity {
 				fmt.Printf("Skipping external link: %s\n", l.FullLink())
 			}
+
 			continue
 		}
 
@@ -53,6 +54,7 @@ func (c *RecursiveCrawler) Crawl(parentURL string, url string, visited lib.SafeV
 
 			visited.AddVisited(l.FullLink())
 
+			// If the link is relative, we need to add the parent's host and path
 			if l.Host == "" {
 				l.Host = parentLink.Host
 			}
@@ -62,8 +64,8 @@ func (c *RecursiveCrawler) Crawl(parentURL string, url string, visited lib.SafeV
 			}
 
 			c.Crawl(parentURL, l.FullLink(), visited)
-		} else {
-			//fmt.Printf("Already visited: %s\n", l.FullLink())
+		} else if c.verbosity {
+			fmt.Printf("Already visited: %s\n", l.FullLink())
 		}
 	}
 }

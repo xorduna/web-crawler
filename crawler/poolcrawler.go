@@ -56,6 +56,7 @@ func (c *PooledCrawler) Crawl(parentURL string, url string, visitedUrls lib.Safe
 
 	wg.Wait()
 	close(linkBuffer)
+
 	if c.verbosity {
 		fmt.Println("parent: sent shutdown signal")
 	}
@@ -67,6 +68,11 @@ func (c *PooledCrawler) Crawl(parentURL string, url string, visitedUrls lib.Safe
 func (c *PooledCrawler) linkCrawl(workerNum int, parentURL string, url string, visitedUrls lib.SafeVisited, buffer chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
+	parentLink, err := ParseLink(url)
+	if err != nil {
+		return
+	}
+
 	links, err := visit(c.browser, url)
 	if err != nil {
 		return
@@ -74,6 +80,7 @@ func (c *PooledCrawler) linkCrawl(workerNum int, parentURL string, url string, v
 
 	// first loop is to print the links
 	fmt.Printf("Visited: %s\n", url)
+
 	for _, l := range links {
 		fmt.Printf(" - %s\n", l.FullLink())
 	}
@@ -94,17 +101,25 @@ func (c *PooledCrawler) linkCrawl(workerNum int, parentURL string, url string, v
 			if c.verbosity {
 				fmt.Println("Visiting: ", l.FullLink())
 			}
+
 			visitedUrls.AddVisited(l.FullLink())
 			wg.Add(1)
+
+			// If the link is relative, we need to add the parent's host and path
+			if l.Host == "" {
+				l.Host = parentLink.Host
+			}
+
+			if l.Path == "" {
+				l.Path = parentLink.Path
+			}
 
 			link := l.FullLink()
 			go func(link string) {
 				buffer <- link
 			}(link)
-		} else {
-			if c.verbosity {
-				fmt.Printf("worker:%d - Already visited: %s\n", workerNum, l.FullLink())
-			}
+		} else if c.verbosity {
+			fmt.Printf("worker:%d - Already visited: %s\n", workerNum, l.FullLink())
 		}
 	}
 }

@@ -13,16 +13,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+//nolint:lll
 func recursiveCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
 	c := crawler.NewCrawler(browser, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
+//nolint:lll
 func poolCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool, workers int) {
 	c := crawler.NewPooledCrawler(browser, workers, verbosity)
 	c.Crawl(parentURL, startURL, visitedUrls)
 }
 
+//nolint:lll
 func fastCrawl(parentURL string, startURL string, visitedUrls lib.SafeVisited, browser crawler.Browser, verbosity bool) {
 	crawler := crawler.NewFastCrawler(browser, verbosity)
 	crawler.Crawl(parentURL, startURL, visitedUrls)
@@ -76,6 +79,7 @@ func runCrawler(cmd *cobra.Command, args []string) {
 	fmt.Printf("Time taken: %s\n", time.Since(epoch))
 }
 
+//nolint:errcheck
 func main() {
 	rootCmd := &cobra.Command{
 		Use:   "crawler [url]",

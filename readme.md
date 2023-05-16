@@ -48,6 +48,7 @@ Those are the main tasks in which I divided the development process:
 - Remove some repeated code in the crawlers
 - Add more tests for more complex sites
 - handle redirects properly
+- ensure that body is closed when opening the url. Before it was closed on the same function, but since I added the DiskBrowser to mock the webserver I had to close it somewhere else and io.Reader does not provide a Close method.
 - change the verbosity flag and the if verbosity printf to use a logger with a loglevel. I didn't do it because it needed external dependencies. I wanted to add verbosity because in any production software you need to go deeper if needed.
 
 ### External dependencies explained

@@ -19,7 +19,6 @@ func getLinks(n *html.Node) []Link {
 		for _, a := range n.Attr {
 			if a.Key == "href" {
 				link, err := ParseLink(a.Val)
-				//fmt.Printf("Checking link %s -> %+v\n", a.Val, link)
 				// Check if it is a link
 				if err != nil {
 					return []Link{}
