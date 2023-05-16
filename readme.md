@@ -15,7 +15,7 @@ make build
 This webcrawler comes in three flavors:
 
 - Recursively: standard recursive crawler without any concurrency
-- Fast: concurrent crawler that spaws a goroutine for each link found
+- Fast: concurrent crawler that spawns a goroutine for each link found
 - Pooled: concurrent crawler that uses a pool of workers to process the links
 
 ```bash
