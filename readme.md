@@ -72,6 +72,27 @@ Those are the main tasks in which I divided the development process:
 - Wrap everything with a cli interface using cobra
 - Clean up the code and add comments
 
+### What do I expect to see in a production ready software?
+
+Here is a small list of things that I would expect to see in a production ready software:
+
+| Feature          | Implemented | Comments                                                                                                                            |
+|------------------| ---------- |-------------------------------------------------------------------------------------------------------------------------------------|
+| Tests:           | ✅ | Coverage 81% (but we know that not all complex HTML sites are covered)                                                              | 81% coverage |
+| Linter:          | ✅ | Some linters have been disabled for simplicity                                                                                      |
+| CI:              | ✅ | Makefile available                                                                                                                  |
+| Security checks: | ❌ | no security scanner (like semgrep) added                                                                                            |
+| Documentation:   | ✅ | This readme file and `webcrawler --help`                                                                                            |
+| Metrics:         | ✅ | Total crawling time is calculated in seconds                                                                                        |
+| Logging:         |  🚧 | A verbosity flag has been added. It is not a proper log with timestamp. Could be improved using a propper logging library like Zap  |
+| Error handling:  | 🚧 | There is some basic error handling. We might add some handling for timeouts, or HTTP errors. Right now error management is "silent" |
+| Concurrency:     | ✅  | Enabled with and without pooling to match the number of cores                                                                       | 
+| Configuration:   |🚧  | Not really needed, but since we are using cobra/viper we can enable some flags via ENV Vars and config files quite easily.          |
+| Versioning:      |❌  | Necessary in any production software.Not implemented.                                                                               |
+| Packaging:       | 🚧| Packaging could be improved                                                                                                         |
+| Docker:          | ❌| Docker file is a must if we want to run this code in a containerized environemnt.Not implemented for simplicity.                    |
+| Multiplatform:   | ❌| Not implemented for simplicity. Needed for cross development (ex Mac with M1 and k8s with linux/amd64                               |
+
 ### Possible improvements
 
 Code is never finished. There are always things to improve. Here are some of the things that I would improve if I had more time:
@@ -83,6 +104,7 @@ Code is never finished. There are always things to improve. Here are some of the
 - Improve some naming, specially the ones related with the extraction of links
 - reorganize folders, for example Safevisited initially was intended to be a generic safe map, but then it was much more practical to named it SafeVisited since it just stores visited links. Also, crawler package might be divided into smaller subpackages.
 - As any production software, we should add some metrics. I just added a small print statement with the amount of time that took to crawl the website, but we could add some metrics like the amount of links found, the amount of links visited, the amount of links that failed, bytes downloaded, etc.
+- The code as is, could not be used for any other program. We can add json output to make it more generic and plug `jq` at the end.
 
 ### External dependencies explained
 
