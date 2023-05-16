@@ -73,7 +73,7 @@ func (c *PooledCrawler) linkCrawl(workerNum int, parentURL string, url string, v
 		return
 	}
 
-	links, err := visit(c.browser, url)
+	links, err := c.browser.Get(url)
 	if err != nil {
 		return
 	}

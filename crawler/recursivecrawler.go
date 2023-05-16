@@ -23,7 +23,7 @@ func (c *RecursiveCrawler) Crawl(parentURL string, url string, visited lib.SafeV
 		return
 	}
 
-	links, err := visit(c.browser, url)
+	links, err := c.browser.Get(url)
 	if err != nil {
 		return
 	}

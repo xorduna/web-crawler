@@ -34,7 +34,7 @@ func (c *FastCrawler) fastCrawl(parentURL string, url string, visitedUrls lib.Sa
 		return
 	}
 
-	links, err := visit(c.browser, url)
+	links, err := c.browser.Get(url)
 	if err != nil {
 		return
 	}

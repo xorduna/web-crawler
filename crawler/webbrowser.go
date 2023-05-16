@@ -1,7 +1,6 @@
 package crawler
 
 import (
-	"io"
 	"net/http"
 )
 
@@ -12,12 +11,13 @@ func NewWebBrowser() *WebBrowser {
 	return &WebBrowser{}
 }
 
-func (w *WebBrowser) Get(url string) (io.Reader, error) {
+func (w *WebBrowser) Get(url string) ([]Link, error) {
 	//nolint: gosec, bodyclose, noctx
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	return resp.Body, nil
+	return ExtractLinksFromHTML(resp.Body)
 }

@@ -16,7 +16,7 @@ func NewDiskBrowser(baseSite string) *DiskBrowser {
 	}
 }
 
-func (f *DiskBrowser) Get(url string) (io.Reader, error) {
+func (f *DiskBrowser) Get(url string) ([]Link, error) {
 	// remove host from url
 	path := strings.ReplaceAll(url, f.baseSite, "")
 	if path == "" || path == "/" {
@@ -32,5 +32,5 @@ func (f *DiskBrowser) Get(url string) (io.Reader, error) {
 
 	reader := io.Reader(file)
 
-	return reader, nil
+	return ExtractLinksFromHTML(reader)
 }

@@ -10,7 +10,7 @@ func TestFastCrawler_Crawl(t *testing.T) {
 
 	fakeExtractor := NewDiskBrowser("https://fakesite.com")
 
-	c := NewFastCrawler(fakeExtractor)
+	c := NewFastCrawler(fakeExtractor, false)
 
 	visitedUrls := lib.NewSafeMap()
 

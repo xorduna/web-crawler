@@ -2,7 +2,6 @@ package crawler
 
 import (
 	"github.com/stretchr/testify/assert"
-	"io"
 	"testing"
 )
 
@@ -10,13 +9,16 @@ func TestDiskBrowser_Get(t *testing.T) {
 
 	//make a test list of links
 	testCases := []struct {
-		link string
+		url      string
+		numLinks int
 	}{
 		{
-			link: "https://fakesite.com/index.html",
+			url:      "https://fakesite.com/index.html",
+			numLinks: 5,
 		},
 		{
-			link: "https://fakesite.com/",
+			url:      "https://fakesite.com/",
+			numLinks: 5,
 		},
 	}
 
@@ -24,15 +26,14 @@ func TestDiskBrowser_Get(t *testing.T) {
 
 	for _, tc := range testCases {
 
-		reader, err := fe.Get(tc.link)
+		links, err := fe.Get(tc.url)
 		if err != nil {
 			t.Error("Expected no error")
 		}
 
-		assert.NotNil(t, reader)
-		data, err := io.ReadAll(reader)
-		assert.NotNil(t, data)
+		assert.NotNil(t, links)
 		assert.Nil(t, err)
+		assert.Len(t, links, tc.numLinks)
 
 	}
 }
